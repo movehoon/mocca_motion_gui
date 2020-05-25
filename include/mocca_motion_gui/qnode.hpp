@@ -71,6 +71,8 @@ private:
 	ros::Publisher chatter_publisher;
 	ros::Publisher publisher_moccaTorque;
     QStringListModel logging_model;
+	std::string motionData;
+	int state_playMotion;
 };
 
 }  // namespace mocca_motion_gui

@@ -19,6 +19,7 @@
 #include "../include/mocca_motion_gui/qnode.hpp"
 #include <mocca_motion_gui/MoccaMotionAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <boost/thread.hpp>
 
 /*****************************************************************************
 ** Namespaces
@@ -53,7 +54,8 @@ bool QNode::init() {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
-	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+	// chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+	publisher_moccaTorque = n.advertise<std_msgs::Int8>("mocca_robot_torque", 10);
 	start();
 	return true;
 }
@@ -69,7 +71,7 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
-	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+	// chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
 	publisher_moccaTorque = n.advertise<std_msgs::Int8>("mocca_robot_torque", 10);
 	start();
 	return true;
@@ -84,32 +86,49 @@ void QNode::torque(int enable) {
 
 void QNode::playMotion(std::string jsonString) {
 	printf("playMotion: %s", jsonString.c_str());
-	Client client("/mocca_motion", true); // true -> don't need ros::spin()
-	client.waitForServer();
-	mocca_motion_gui::MoccaMotionGoal goal;
-	goal.motion_data = jsonString;
+	std::cout << "action server connected" << std::endl;
+	motionData = jsonString;
+	state_playMotion = 1;
 	// Fill in goal here
-	client.sendGoal(goal);
-	client.waitForResult(ros::Duration(5.0));
-	if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-		printf("Yay! The dishes are now clean");
-	printf("Current State: %s\n", client.getState().toString().c_str());
 }
 
 void QNode::run() {
 	ros::Rate loop_rate(1);
 	int count = 0;
+	Client client("/mocca_motion", true); // true -> don't need ros::spin()
+	client.waitForServer();
 	while ( ros::ok() ) {
-
-		std_msgs::String msg;
-		std::stringstream ss;
-		ss << "hello world " << count;
-		msg.data = ss.str();
-		chatter_publisher.publish(msg);
-		log(Info,std::string("I sent: ")+msg.data);
+		switch (state_playMotion) {
+			case 0:
+				break;
+			case 1:
+			{
+				mocca_motion_gui::MoccaMotionGoal goal;
+				goal.motion_data = motionData;
+				client.sendGoal(goal);
+				state_playMotion = 2;
+				client.waitForResult(ros::Duration(5.0));
+				break;
+			}
+			case 2:
+			{
+				if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+					state_playMotion = 0;
+					printf("Motion done");
+				}
+				printf("Current State: %s\n", client.getState().toString().c_str());
+				break;
+			}
+		}
+		// std_msgs::String msg;
+		// std::stringstream ss;
+		// ss << "hello world " << count;
+		// msg.data = ss.str();
+		// chatter_publisher.publish(msg);
+		// log(Info,std::string("I sent: ")+msg.data);
 		ros::spinOnce();
-		loop_rate.sleep();
-		++count;
+		// loop_rate.sleep();
+		// ++count;
 	}
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
