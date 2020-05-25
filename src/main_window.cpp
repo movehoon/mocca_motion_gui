@@ -19,6 +19,7 @@
 #include <qtextcodec.h>
 #include <dirent.h>
 #include <qstring.h>
+#include <ros/package.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -28,13 +29,11 @@ namespace mocca_motion_gui {
 
 using namespace Qt;
 using namespace std;
-// namespace fs = std::filesystem;
 
 /*****************************************************************************
 ** Implementation [MainWindow]
 *****************************************************************************/
 
-const char * MOTION_DIR = "/home/parallels/JsonData";
 
 vector<string> list_dir(const char *path) {
 	vector<string> files;
@@ -83,7 +82,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
         on_button_connect_clicked(true);
     }
 
-    vector<string> files = list_dir(MOTION_DIR);
+	string path = ros::package::getPath("mocca_motion_gui");
+	path += "/motions";
+    vector<string> files = list_dir(path.c_str());
     if (files.size() > 0) {
     	for (vector<string>::iterator iter = files.begin(); iter < files.end(); iter++) {
     		string str = *iter;
@@ -151,7 +152,7 @@ void MainWindow::on_checkBox_torque_enable_stateChanged(int state) {
 
 void MainWindow::on_checkBox_play_from_motion_editor_stateChanged(int state) {
 	QMessageBox msgBox;
-	msgBox.setText(to_string(state).c_str());
+	msgBox.setText(QString::number(state));
 	msgBox.exec();
 }
 
@@ -167,24 +168,24 @@ void MainWindow::on_button_play_motion_clicked(bool check) {
 	string selectedFilename = selectedComboString.toStdString();
 	cout << "Play: " << selectedFilename.c_str() << endl; 
 
-	string filepath = MOTION_DIR;
-	filepath += "/";
-	filepath += selectedFilename;
-	cout << "Open: " << filepath << endl;
+	string path = ros::package::getPath("mocca_motion_gui");
+	path += "/motions/";
+	path += selectedFilename;
+	cout << "Open: " << path << endl;
 
 	string line;
-	string fliedata;
-	ifstream ifs (filepath);
+	string filedata;
+	ifstream ifs (path.c_str());
 	if (ifs.is_open())
 	{
 		while ( getline (ifs,line) )
 		{
-			fliedata += line;
+			filedata += line;
 			cout << line << '\n';
 		}
 		ifs.close();
 
-		qnode.playMotion(fliedata);
+		qnode.playMotion(filedata);
 	}
 }
 

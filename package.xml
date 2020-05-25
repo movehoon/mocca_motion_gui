@@ -7,8 +7,8 @@
      mocca_motion_gui
 
   </description>
-  <maintainer email="Parallels@gmail.com">Parallels</maintainer>
-  <author>Parallels</author>
+  <maintainer email="movehoon@gmail.com">Daniel D. Lee</maintainer>
+  <author>Daniel D. Lee</author>
   <license>BSD</license>
   <!-- <url type="bugtracker">https://github.com/stonier/qt_ros/issues</url> -->
   <!-- <url type="repository">https://github.com/stonier/qt_ros</url> -->
@@ -16,10 +16,12 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>qt_build</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>roslib</build_depend>
   <build_depend>libqt4-dev </build_depend>
   <build_depend>actionlib_msgs </build_depend>
   <run_depend>qt_build</run_depend>
   <run_depend>roscpp</run_depend>
+  <run_depend>roslib</run_depend>
   <run_depend>libqt4-dev</run_depend>
   <run_depend>actionlib_msgs</run_depend>
 

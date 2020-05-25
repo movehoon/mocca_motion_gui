@@ -83,6 +83,7 @@ void QNode::torque(int enable) {
 }
 
 void QNode::playMotion(std::string jsonString) {
+	printf("playMotion: %s", jsonString.c_str());
 	Client client("/mocca_motion", true); // true -> don't need ros::spin()
 	client.waitForServer();
 	mocca_motion_gui::MoccaMotionGoal goal;
