@@ -10,8 +10,8 @@ project(mocca_motion_gui)
 ##############################################################################
 
 # qt_build provides the qt cmake glue, roscpp the comms for a default talker
-find_package(catkin REQUIRED COMPONENTS qt_build roscpp roslib actionlib actionlib_msgs)
-add_action_files(DIRECTORY action FILES MoccaMotion.action)
+find_package(catkin REQUIRED COMPONENTS qt_build roscpp roslib actionlib actionlib_msgs mocca_robot)
+# add_action_files(DIRECTORY action FILES MoccaMotion.action)
 generate_messages(DEPENDENCIES actionlib_msgs)
 
 include_directories(${catkin_INCLUDE_DIRS})

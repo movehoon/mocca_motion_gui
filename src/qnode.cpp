@@ -17,7 +17,7 @@
 #include <std_msgs/Int8.h>
 #include <sstream>
 #include "../include/mocca_motion_gui/qnode.hpp"
-#include <mocca_motion_gui/MoccaMotionAction.h>
+#include <mocca_robot/MoccaMotionAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <boost/thread.hpp>
 
@@ -27,7 +27,7 @@
 
 namespace mocca_motion_gui {
 
-typedef actionlib::SimpleActionClient<mocca_motion_gui::MoccaMotionAction> Client;
+typedef actionlib::SimpleActionClient<mocca_robot::MoccaMotionAction> Client;
 
 /*****************************************************************************
 ** Implementation
@@ -103,7 +103,7 @@ void QNode::run() {
 				break;
 			case 1:
 			{
-				mocca_motion_gui::MoccaMotionGoal goal;
+				mocca_robot::MoccaMotionGoal goal;
 				goal.motion_data = motionData;
 				client.sendGoal(goal);
 				state_playMotion = 2;
